@@ -76,7 +76,11 @@ class SshCommand extends Command
                 foreach ($hosts as $ip => $host) $hosts_str[$ip] = (string)$host;
                 $question->setAutocompleterCallback(function (string $userInput) use ($hosts_str) {
                     return array_map(fn ($x) => "$userInput : $x", array_filter($hosts_str, function ($host) use ($userInput) {
-                        return $userInput === '' || strpos($host, $userInput) !== false;
+                        if ($userInput === '') return true;
+                        $userInput = explode(' ', $userInput);
+                        $userInput = array_map(fn ($x) => preg_quote($x, '#'), $userInput);
+                        $userInput = '#' . implode('.*', $userInput) . "#";
+                        return $userInput === '' || preg_match($userInput, $host) !== false;
                     }));
                 });
                 $question->setNormalizer(function ($value) {
