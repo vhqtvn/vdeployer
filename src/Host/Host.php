@@ -65,9 +65,7 @@ class Host
     public function __toString()
     {
         if ($this->has('description')) {
-            $desc = $this->get('description');
-            if (is_callable($desc)) $desc = $desc();
-            return $desc;
+            return $this->get('description');
         }
         $user = empty($this->user) ? '' : "{$this->user}@";
         return "$user{$this->realHostname}";
