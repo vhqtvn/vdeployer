@@ -14,7 +14,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * @codeCoverageIgnore
@@ -69,30 +69,37 @@ class SshCommand extends Command
                 $host = array_shift($hosts);
             } else {
                 $helper = $this->getHelper('question');
-                $question = new ChoiceQuestion(
-                    'Select host:',
-                    $hosts
+                $question = new Question(
+                    'Select host: '
                 );
-                $question->setNormalizer(function ($value) {
-                    return explode(' ', $value)[0];
+                $hosts_str = [];
+                foreach ($hosts as $ip => $host) $hosts_str[$ip] = (string)$host;
+                $question->setAutocompleterCallback(function (string $userInput) use ($hosts_str) {
+                    return array_map(fn($x) => "$userInput : $x", array_filter($hosts_str, function ($host) use ($userInput) {
+                        return $userInput === '' || strpos($host, $userInput) !== false;
+                    }));
                 });
-                $question->setErrorMessage('There is no "%s" host.');
+                $question->setNormalizer(function ($value) {
+                    return @explode(' ', explode(' : ', $value, 2)[1])[0];
+                });
 
                 $hostname = $helper->ask($input, $output, $question);
+                if (!$hostname) throw new \Exception("No such host: $hostname");
+
                 $host = $this->deployer->hosts->get($hostname);
             }
         }
 
         $shell_path = 'exec $SHELL -l';
         if ($host->has('shell_path')) {
-            $shell_path = 'exec '.$host->get('shell_path').' -l';
+            $shell_path = 'exec ' . $host->get('shell_path') . ' -l';
         }
 
         Context::push(new Context($host, $input, $output));
         $options = $host->getSshArguments();
         $deployPath = $host->get('deploy_path', '~');
 
-        passthru("ssh -t $options $host 'cd '''$deployPath/current'''; $shell_path'");
+        passthru("ssh -t $options " . escapeshellarg($host->getUser() . '@' . $host->getHostname()) . " '$shell_path'");
         return 0;
     }
 }
