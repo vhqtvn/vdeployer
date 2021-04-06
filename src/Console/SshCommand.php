@@ -75,7 +75,7 @@ class SshCommand extends Command
                 $hosts_str = [];
                 foreach ($hosts as $ip => $host) $hosts_str[$ip] = (string)$host;
                 $question->setAutocompleterCallback(function (string $userInput) use ($hosts_str) {
-                    return array_map(fn($x) => "$userInput : $x", array_filter($hosts_str, function ($host) use ($userInput) {
+                    return array_map(fn ($x) => "$userInput : $x", array_filter($hosts_str, function ($host) use ($userInput) {
                         return $userInput === '' || strpos($host, $userInput) !== false;
                     }));
                 });
@@ -85,6 +85,7 @@ class SshCommand extends Command
 
                 $hostname = $helper->ask($input, $output, $question);
                 if (!$hostname) throw new \Exception("No such host: $hostname");
+                if (strpos($hostname, '@') !== false) $hostname = explode('@', $hostname, 2)[1];
 
                 $host = $this->deployer->hosts->get($hostname);
             }
