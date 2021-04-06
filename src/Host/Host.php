@@ -10,6 +10,7 @@ namespace Deployer\Host;
 use Deployer\Configuration\Configuration;
 use Deployer\Configuration\ConfigurationAccessor;
 use Deployer\Ssh\Arguments;
+use Deployer\Task\Context;
 use function Deployer\Support\array_flatten;
 
 class Host
@@ -65,7 +66,12 @@ class Host
     public function __toString()
     {
         if ($this->has('description')) {
-            return $this->get('description');
+            Context::push(new Context($this, Deployer::get()->getInput(), Deployer::get()->getOutput()));
+            try {
+                return $this->get('description');
+            } finally {
+                Context::pop();
+            }
         }
         $user = empty($this->user) ? '' : "{$this->user}@";
         return "$user{$this->realHostname}";
