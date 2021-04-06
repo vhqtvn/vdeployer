@@ -80,7 +80,7 @@ class SshCommand extends Command
                         $userInput = explode(' ', $userInput);
                         $userInput = array_map(fn ($x) => preg_quote($x, '#'), $userInput);
                         $userInput = '#' . implode('.*', $userInput) . "#";
-                        return $userInput === '' || preg_match($userInput, $host) !== false;
+                        return preg_match($userInput, $host) === 1;
                     }));
                 });
                 $question->setNormalizer(function ($value) {
