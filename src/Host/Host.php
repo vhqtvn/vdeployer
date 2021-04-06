@@ -66,6 +66,12 @@ class Host
      */
     public function __toString()
     {
+        $user = empty($this->user) ? '' : "{$this->user}@";
+        return "$user{$this->realHostname}";
+    }
+
+    public function getDescription()
+    {
         if ($this->has('description')) {
             Context::push(new Context($this, Deployer::get()->getInput(), Deployer::get()->getOutput()));
             try {
@@ -74,8 +80,7 @@ class Host
                 Context::pop();
             }
         }
-        $user = empty($this->user) ? '' : "{$this->user}@";
-        return "$user{$this->realHostname}";
+        return (string)$this;
     }
 
     /**
