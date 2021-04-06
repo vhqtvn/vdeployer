@@ -73,6 +73,9 @@ class SshCommand extends Command
                     'Select host:',
                     $hosts
                 );
+                $question->setNormalizer(function ($value) {
+                    return explode(' ', $value)[0];
+                });
                 $question->setErrorMessage('There is no "%s" host.');
 
                 $hostname = $helper->ask($input, $output, $question);
