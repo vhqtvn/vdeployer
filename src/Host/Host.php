@@ -64,6 +64,11 @@ class Host
      */
     public function __toString()
     {
+        if ($this->has('description')) {
+            $desc = $this->get('description');
+            if (is_callable($desc)) $desc = $desc();
+            return $desc;
+        }
         $user = empty($this->user) ? '' : "{$this->user}@";
         return "$user{$this->realHostname}";
     }
@@ -212,7 +217,7 @@ class Host
         return $this;
     }
 
-    public function getShellCommand() : string
+    public function getShellCommand(): string
     {
         return $this->shellCommand;
     }
