@@ -73,7 +73,7 @@ class SshCommand extends Command
                     'Select host: '
                 );
                 $hosts_str = [];
-                foreach ($hosts as $ip => $host) $hosts_str[$ip] = $host->getDescription();
+                foreach ($hosts as $ip => $host) $hosts_str[] = $host->getDescription();
                 $question->setAutocompleterCallback(function (string $userInput) use ($hosts_str) {
                     return array_map(fn ($x) => "$userInput : $x", array_filter($hosts_str, function ($host) use ($userInput) {
                         if ($userInput === '') return true;

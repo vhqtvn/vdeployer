@@ -12,6 +12,7 @@ use Deployer\Console\Application;
 use Deployer\Console\AutocompleteCommand;
 use Deployer\Console\CommandEvent;
 use Deployer\Console\DebugCommand;
+use Deployer\Console\HostsCommand;
 use Deployer\Console\InitCommand;
 use Deployer\Console\Output\Informer;
 use Deployer\Console\Output\OutputWatcher;
@@ -224,6 +225,7 @@ class Deployer extends Container
         $this->getConsole()->add(new WorkerCommand($this));
         $this->getConsole()->add($this['init_command']);
         $this->getConsole()->add(new SshCommand($this));
+        $this->getConsole()->add(new HostsCommand($this));
         $this->getConsole()->add(new RunCommand($this));
         $this->getConsole()->add(new DebugCommand($this));
         $this->getConsole()->add(new AutocompleteCommand());
