@@ -87,11 +87,22 @@ class SshCommand extends Command
                     return @explode(' ', explode(' : ', $value, 2)[1])[0];
                 });
 
-                $hostname = $helper->ask($input, $output, $question);
+                $username = null;
+                $hostname = $hostname_input = $helper->ask($input, $output, $question);
                 if (!$hostname) throw new \Exception("No such host: $hostname");
-                if (strpos($hostname, '@') !== false) $hostname = explode('@', $hostname, 2)[1];
+                if (strpos($hostname, '@') !== false) {
+                    [$username, $hostname] = explode('@', $hostname, 2);
+                }
 
-                $host = $this->deployer->hosts->get($hostname);
+                $result_host = null;
+                foreach ($this->deployer->hosts as $host => $chk_host) {
+                    if (!is_null($username) && $username != $chk_host->getUser()) continue;
+                    if ($hostname != $chk_host->getRealHostname()) continue;
+                    $result_host = $chk_host;
+                    break;
+                }
+                if (is_null($result_host)) throw new \Exception("No such host: $hostname_input");
+                $host = $result_host;
             }
         }
 
@@ -104,7 +115,7 @@ class SshCommand extends Command
         $options = $host->getSshArguments();
         $deployPath = $host->get('deploy_path', '~');
 
-        passthru("ssh -t $options " . escapeshellarg($host->getUser() . '@' . $host->getHostname()) . " '$shell_path'");
+        passthru("ssh -t $options " . escapeshellarg($host->getUser() . '@' . $host->getRealHostname()) . " '$shell_path'");
         return 0;
     }
 }
