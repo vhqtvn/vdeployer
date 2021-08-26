@@ -55,12 +55,17 @@ class HostsCommand extends Command
         });
         $table = new Table($output);
         $rows = [];
-        foreach ($hosts as $host) $rows[] = [
-            $host->getDescription(),
-            implode(", ", $host->get('roles')),
-        ];
+        foreach ($hosts as $host) {
+            $id = '';
+            if ($host->has('edge-id')) $id = $host->get('edge-id');
+            $rows[] = [
+                $id,
+                $host->getDescription(),
+                implode(", ", $host->get('roles')),
+            ];
+        }
         $table
-            ->setHeaders(['Host', 'Role'])
+            ->setHeaders(['ID', 'Host', 'Role'])
             ->setRows($rows);
         $table->render();
 
