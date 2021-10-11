@@ -75,12 +75,12 @@ localhost('test_on[01:05]')
     ->set('hostname', function () {
         return Context::get()->getHost()->getHostname();
     })
-    ->set('deploy_path', __DIR__ . '/tmp/{{hostname}}')
+    ->set('deploy_path', __DIR__ . '/tmp/VZTDepVar{{hostname}}')
     ->set('roles', ['test_on_roles']);
 
 
 task('test_on', function () {
     on(roles('test_on_roles'), function (Host $host) {
-        writeln('<' . ($host->getHostname() === get('hostname') ? 'yes:' : 'no:') . '{{hostname}}' . '>');
+        writeln('<' . ($host->getHostname() === get('hostname') ? 'yes:' : 'no:') . 'VZTDepVar{{hostname}}' . '>');
     });
 })->local();

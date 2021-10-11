@@ -46,12 +46,12 @@ add('writable_dirs', []);
 // Hosts
 
 host('project.com')
-    ->set('deploy_path', '~/{{application}}');    
+    ->set('deploy_path', '~/VZTDepVar{{application}}');    
     
 // Tasks
 
 task('build', function () {
-    run('cd {{release_path}} && build');
+    run('cd VZTDepVar{{release_path}} && build');
 });
 
 // [Optional] if deploy fails automatically unlock.

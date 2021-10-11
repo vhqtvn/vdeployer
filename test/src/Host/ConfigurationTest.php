@@ -20,8 +20,8 @@ class ConfigurationTest extends TestCase
         $config->set('string', 'value');
         $config->set('array', [1, 'two']);
         $config->set('hyphen-ated', 'hyphen');
-        $config->set('parse', 'is {{int}}');
-        $config->set('parse-hyphen', 'has {{hyphen-ated}}');
+        $config->set('parse', 'is VZTDepVar{{int}}');
+        $config->set('parse-hyphen', 'has VZTDepVar{{hyphen-ated}}');
         $config->set('callback', function () {
             return 'callback';
         });

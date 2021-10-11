@@ -150,7 +150,7 @@ function task($name, $body = null)
         $task = new GroupTask($name, $body);
     } elseif (is_string($body)) {
         $task = new T($name, function () use ($body) {
-            cd('{{release_path}}');
+            cd('VZTDepVar{{release_path}}');
             run($body);
         });
     } else {
@@ -335,7 +335,7 @@ function runLocally($command, $options = [])
  * Run test command.
  * Example:
  *
- *     test('[ -d {{release_path}} ]')
+ *     test('[ -d VZTDepVar{{release_path}} ]')
  *
  * @param string $command
  * @return bool
@@ -349,7 +349,7 @@ function test($command)
  * Run test command locally.
  * Example:
  *
- *     testLocally('[ -d {{local_release_path}} ]')
+ *     testLocally('[ -d VZTDepVar{{local_release_path}} ]')
  *
  * @param string $command
  * @return bool

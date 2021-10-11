@@ -20,12 +20,12 @@ set('media_dir', 'public/media');
 set('parameters.yml', 'app/config/parameters.yml');
 
 set('shared_files', [
-    '{{parameters.yml}}',
+    'VZTDepVar{{parameters.yml}}',
 ]);
 
 set('shared_dirs', [
     'app/logs',
-    '{{media_dir}}',
+    'VZTDepVar{{media_dir}}',
 ]);
 
 set('writable_dirs', [
@@ -82,5 +82,5 @@ fail('deploy_fail', 'deploy:unlock');
 // Dummy
 
 task('deploy:vendors', function () {
-    run('echo {{bin/composer}} {{composer_options}}');
+    run('echo VZTDepVar{{bin/composer}} VZTDepVar{{composer_options}}');
 });

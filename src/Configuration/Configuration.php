@@ -95,7 +95,7 @@ class Configuration
     public function parse($value)
     {
         if (is_string($value)) {
-            return preg_replace_callback('/\{\{\s*([\w\.\/-]+)\s*\}\}/', [$this, 'parseCallback'], $value);
+            return preg_replace_callback('/VZTDepVar\{\{\s*([\w\.\/-]+)\s*\}\}/', [$this, 'parseCallback'], $value);
         }
 
         return $value;

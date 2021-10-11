@@ -19,7 +19,7 @@ localhost('host[1:4]')
 
 desc('Deploy your project');
 task('deploy', function () {
-    run('if [ ! -d {{deploy_path}} ]; then mkdir -p {{deploy_path}}; fi');
-    cd('{{deploy_path}}');
-    run('touch deployed-{{hostname}}');
+    run('if [ ! -d VZTDepVar{{deploy_path}} ]; then mkdir -p VZTDepVar{{deploy_path}}; fi');
+    cd('VZTDepVar{{deploy_path}}');
+    run('touch deployed-VZTDepVar{{hostname}}');
 })->once();

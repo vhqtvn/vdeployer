@@ -1,17 +1,21 @@
 {
-    "name": "deployer/deployer",
+    "name": "vhqtvn/vdeployer",
     "description": "Deployment Tool",
     "license": "MIT",
     "homepage": "https://deployer.org",
     "support": {
-        "issues": "https://github.com/deployphp/deployer/issues",
-        "source": "https://github.com/deployphp/deployer",
+        "issues": "https://github.com/vhqtvn/vdeployer/issues",
+        "source": "https://github.com/vhqtvn/vdeployer",
         "docs": "https://deployer.org/docs"
     },
     "authors": [
         {
             "name": "Anton Medvedev",
             "email": "anton@medv.io"
+        },
+        {
+            "name": "vhqtvn",
+            "email": "hoanv@vzota.com.vn"
         }
     ],
     "autoload": {
@@ -24,10 +28,10 @@
         ]
     },
     "bin": [
-        "bin/dep"
+        "bin/vdep"
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^8.0",
         "deployer/phar-update": "~2.2",
         "pimple/pimple": "~3.0",
         "symfony/console": "~2.7|~3.0|~4.0|~5.0",
@@ -40,7 +44,7 @@
     "config": {
         "sort-packages": true,
         "platform": {
-            "php": "7.2.25"
+            "php": "8.0"
         }
     }
 }

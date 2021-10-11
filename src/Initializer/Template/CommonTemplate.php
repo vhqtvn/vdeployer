@@ -50,7 +50,7 @@ set('writable_dirs', []);
 // Hosts
 
 host('project.com')
-    ->set('deploy_path', '~/{{application}}');    
+    ->set('deploy_path', '~/VZTDepVar{{application}}');    
     
 
 // Tasks

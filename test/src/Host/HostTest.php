@@ -80,7 +80,7 @@ class HostTest extends TestCase
         $value = 'new_value';
         $host
             ->set('env', $value)
-            ->identityFile('{{env}}');
+            ->identityFile('VZTDepVar{{env}}');
 
         self::assertEquals($value, $host->getIdentityFile());
     }

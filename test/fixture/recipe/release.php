@@ -21,8 +21,8 @@ task('deploy', [
 ]);
 
 task('result', function () {
-    writeln('release_path {{release_path}}');
+    writeln('release_path VZTDepVar{{release_path}}');
     if (has('previous_release')) {
-        writeln('previous_release {{previous_release}}');
+        writeln('previous_release VZTDepVar{{previous_release}}');
     }
 });
