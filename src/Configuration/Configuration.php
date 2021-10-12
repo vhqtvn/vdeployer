@@ -16,13 +16,15 @@ use function Deployer\Support\array_merge_alternate;
 
 class Configuration
 {
+    public $owner;
     /**
      * @var Collection
      */
     private $collection;
 
-    public function __construct()
+    public function __construct($owner = null)
     {
+        $this->owner = $owner;
         $this->collection = new Collection();
     }
 

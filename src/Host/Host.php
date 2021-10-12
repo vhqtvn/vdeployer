@@ -36,7 +36,7 @@ class Host
     {
         $this->hostname = $hostname;
         $this->setRealHostname($hostname);
-        $this->config = new Configuration();
+        $this->config = new Configuration($this);
         $this->sshArguments = new Arguments();
     }
 

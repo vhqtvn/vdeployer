@@ -314,6 +314,8 @@ class Deployer extends Container
         $output = new ConsoleOutput();
         $deployer = new self($console);
 
+        $console->setCatchExceptions(false);
+
         // Pretty-print uncaught exceptions in symfony-console
         set_exception_handler(function ($e) use ($input, $output, $deployer) {
             $io = new SymfonyStyle($input, $output);
