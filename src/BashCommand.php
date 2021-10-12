@@ -36,6 +36,11 @@ class BashCommand
         self::__init_static();
         return new self(self::$special_command, 'raw', ...$raw_command);
     }
+    public static function arg($name, ...$args)
+    {
+        self::__init_static();
+        return new self($name, ...$args);
+    }
     public static function setopt(
         $verbose = null,
         $xtrace = null,
