@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /* (c) Anton Medvedev <anton@medv.io>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -96,6 +98,20 @@ class Configuration
     {
         if (is_string($value)) {
             return preg_replace_callback('/VZTDepVar\{\{\s*([\w\.\/-]+)\s*\}\}/', [$this, 'parseCallback'], $value);
+        }
+
+        if (is_array($value)) {
+            $new_value = [];
+            $has_changed_key = false;
+            foreach ($value as $k => &$v) {
+                $k2 = $this->parse($k);
+                $v = $this->parse($v);
+                $new_value[$k2] = $v;
+                if ($k2 !== $k) {
+                    $has_changed_key = true;
+                }
+            }
+            if ($has_changed_key) $value = $new_value;
         }
 
         return $value;

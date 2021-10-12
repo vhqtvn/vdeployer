@@ -250,7 +250,7 @@ function cd($path)
     try {
         set('working_path', parse($path));
     } catch (RuntimeException $e) {
-        throw new \Exception('Unable to change directory into "'. $path .'"', 0, $e);
+        throw new \Exception('Unable to change directory into "' . $path . '"', 0, $e);
     }
 }
 
@@ -280,6 +280,9 @@ function within($path, $callback)
  */
 function run($command, $options = [])
 {
+    if (!is_string($command)) {
+        $command = (string)$command;
+    }
     $host = Context::get()->getHost();
     $hostname = $host->getHostname();
 
