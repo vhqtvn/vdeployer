@@ -58,7 +58,7 @@ class Configuration
     {
         if ($this->collection->has($name)) {
             if ($this->isClosure($this->collection[$name])) {
-                $value = $this->collection[$name] = call_user_func($this->collection[$name]);
+                $value = $this->collection[$name] = call_user_func($this->collection[$name], $this);
             } else {
                 $value = $this->collection[$name];
             }
@@ -67,7 +67,7 @@ class Configuration
 
             if (isset($config[$name])) {
                 if ($this->isClosure($config[$name])) {
-                    $value = $this->collection[$name] = call_user_func($config[$name]);
+                    $value = $this->collection[$name] = call_user_func($config[$name], $this);
                 } else {
                     $value = $this->collection[$name] = $config[$name];
                 }
