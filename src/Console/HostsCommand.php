@@ -58,14 +58,25 @@ class HostsCommand extends Command
         foreach ($hosts as $host) {
             $id = '';
             if ($host->has('edge-id')) $id = $host->get('edge-id');
+            $cluster = '';
+            if ($host->has('cluster')) $cluster = $host->get('cluster');
+            $stage = '';
+            if ($host->has('stage')) $stage = $host->get('stage');
             $rows[] = [
                 $id,
+                $cluster,
+                $stage,
                 $host->getDescription(),
                 implode(", ", $host->get('roles')),
             ];
         }
+        usort($rows, function ($a, $b) {
+            if ($a[1] != $b[1]) return strcmp($a[1], $a[1]);
+            if ($a[2] != $b[2]) return strcmp($a[2], $a[2]);
+            return strcmp(json_encode($a), json_encode($b));
+        });
         $table
-            ->setHeaders(['ID', 'Host', 'Role'])
+            ->setHeaders(['ID', 'Cluster', 'Stage', 'Host', 'Role'])
             ->setRows($rows);
         $table->render();
 
