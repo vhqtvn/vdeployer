@@ -36,6 +36,22 @@ class BashCommand
         self::__init_static();
         return new self(self::$special_command, 'raw', ...$raw_command);
     }
+    public static function setopt(
+        $verbose = null,
+        $xtrace = null,
+        $pipefail = null,
+        $noglob = null,
+        $errexit = null,
+    ) {
+        $opts = [];
+        if (!is_null($errexit)) $opts[] = $errexit ? "-e" : "+e";
+        if (!is_null($noglob)) $opts[] = $noglob ? "-f" : "+f";
+        if (!is_null($pipefail)) $opts[] = $pipefail ? "-o pipefail" : "+o pipefail";
+        if (!is_null($verbose)) $opts[] = $verbose ? "-v" : "+v";
+        if (!is_null($xtrace)) $opts[] = $xtrace ? "-x" : "+x";
+        if (empty($opts)) return self::raw("true");
+        return self::raw("set " . implode(" ", $opts));
+    }
     private static function batchJoiner(string $join, BashCommand ...$commands)
     {
         $new_commands = [
