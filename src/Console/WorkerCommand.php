@@ -46,9 +46,14 @@ class WorkerCommand extends Command
         }
         $this->deployer = $deployer;
         $this->addArgument(
+            'cluster',
+            InputArgument::OPTIONAL,
+            'Cluster or hostname'
+        );
+        $this->addArgument(
             'stage',
             InputArgument::OPTIONAL,
-            'Stage or hostname'
+            'Stage'
         );
         $this->addOption(
             'hostname',

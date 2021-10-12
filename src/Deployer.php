@@ -92,6 +92,7 @@ class Deployer extends Container
             return new Collection();
         };
         $this->config['ssh_multiplexing'] = true;
+        $this->config['default_cluster'] = null;
         $this->config['default_stage'] = null;
 
         /******************************
@@ -120,11 +121,15 @@ class Deployer extends Container
             return new Task\ScriptManager($c['tasks']);
         };
         $this['hostSelector'] = function ($c) {
+            $defaultCluster = $c['config']['default_cluster'];
+            if (is_object($defaultCluster) && ($defaultCluster instanceof \Closure)) {
+                $defaultCluster = call_user_func($defaultCluster);
+            }
             $defaultStage = $c['config']['default_stage'];
             if (is_object($defaultStage) && ($defaultStage instanceof \Closure)) {
                 $defaultStage = call_user_func($defaultStage);
             }
-            return new Host\HostSelector($c['hosts'], $defaultStage);
+            return new Host\HostSelector($c['hosts'], cluster: $defaultCluster, stage: $defaultStage);
         };
         $this['fail'] = function () {
             return new Collection();
@@ -315,7 +320,7 @@ class Deployer extends Container
             $io->block($e->getMessage(), get_class($e), 'fg=white;bg=red', ' ', true);
             $io->block($e->getTraceAsString());
 
-            $deployer->logger->log('['. get_class($e) .'] '. $e->getMessage());
+            $deployer->logger->log('[' . get_class($e) . '] ' . $e->getMessage());
             $deployer->logger->log($e->getTraceAsString());
             exit(1);
         });

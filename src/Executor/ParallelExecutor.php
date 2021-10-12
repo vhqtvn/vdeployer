@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /* (c) Anton Medvedev <anton@medv.io>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -75,8 +77,7 @@ class ParallelExecutor implements ExecutorInterface
         //
         // Otherwise `input()` wont be accessible (i.e. null)
         //
-        Context::push(new Context($localhost, $this->input, $this->output));
-        {
+        Context::push(new Context($localhost, $this->input, $this->output)); {
             Storage::persist($hosts);
         }
         Context::pop();
@@ -86,8 +87,7 @@ class ParallelExecutor implements ExecutorInterface
             $this->informer->startTask($task);
 
             if ($task->isLocal()) {
-                Storage::load($hosts);
-                {
+                Storage::load($hosts); {
                     $task->run(new Context($localhost, $this->input, $this->output));
                 }
                 Storage::flush($hosts);
@@ -280,9 +280,12 @@ class ParallelExecutor implements ExecutorInterface
     {
         $arguments = '';
 
-        if ($this->input->hasArgument('stage')) {
-            // Some people rely on stage argument, so pass it to worker too.
-            $arguments .= $this->input->getArgument('stage');
+        if ($this->input->hasArgument('cluster')) {
+            $arguments .= escapeshellarg($this->input->getArgument('cluster'));
+
+            if ($this->input->hasArgument('stage')) {
+                $arguments .= " " . escapeshellarg($this->input->getArgument('stage'));
+            }
         }
 
         return $arguments;

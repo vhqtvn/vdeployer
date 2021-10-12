@@ -54,6 +54,12 @@ class RunCommand extends Command
             'Log to file'
         );
         $this->addOption(
+            'cluster',
+            null,
+            Option::VALUE_REQUIRED,
+            'Cluster or hostname to deploy'
+        );
+        $this->addOption(
             'stage',
             null,
             Option::VALUE_REQUIRED,
@@ -79,6 +85,7 @@ class RunCommand extends Command
     protected function execute(Input $input, Output $output)
     {
         $command = $input->getArgument('command-to-run');
+        $cluster = $input->getOption('cluster');
         $stage = $input->getOption('stage');
         $roles = $input->getOption('roles');
         $hosts = $input->getOption('hosts');
@@ -87,13 +94,13 @@ class RunCommand extends Command
             $this->deployer->config['log_file'] = $input->getOption('log');
         }
 
-        if (!empty($hosts)) {
-            $hosts = $this->deployer->hostSelector->getByHostnames($hosts);
-        } elseif (!empty($roles)) {
-            $hosts = $this->deployer->hostSelector->getByRoles($roles);
-        } else {
-            $hosts = $this->deployer->hostSelector->getHosts($stage);
-        }
+        $selector = $this->deployer->hostSelector;
+
+        if (!empty($hosts)) $selector = $selector->getByHostnames($hosts);
+        if (!empty($roles)) $selector = $selector->getByRoles($roles);
+        if (!empty($stage)) $selector = $selector->getByStage($stage);
+
+        $hosts = $selector->getHosts($cluster);
 
         if (empty($hosts)) {
             throw new Exception('No host selected');

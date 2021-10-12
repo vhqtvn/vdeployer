@@ -49,9 +49,14 @@ class TaskCommand extends Command
     protected function configure()
     {
         $this->addArgument(
+            'cluster',
+            InputArgument::OPTIONAL,
+            'cluster or hostname'
+        );
+        $this->addArgument(
             'stage',
             InputArgument::OPTIONAL,
-            'Stage or hostname'
+            'stage'
         );
         $this->addOption(
             'parallel',
@@ -102,6 +107,7 @@ class TaskCommand extends Command
      */
     protected function execute(Input $input, Output $output)
     {
+        $cluster = $input->hasArgument('cluster') ? $input->getArgument('cluster') : null;
         $stage = $input->hasArgument('stage') ? $input->getArgument('stage') : null;
         $roles = $input->getOption('roles');
         $hosts = $input->getOption('hosts');
@@ -112,13 +118,13 @@ class TaskCommand extends Command
             $this->deployer->config['log_file'] = $input->getOption('log');
         }
 
-        if (!empty($hosts)) {
-            $hosts = $this->deployer->hostSelector->getByHostnames($hosts);
-        } elseif (!empty($roles)) {
-            $hosts = $this->deployer->hostSelector->getByRoles($roles);
-        } else {
-            $hosts = $this->deployer->hostSelector->getHosts($stage);
-        }
+        $selector = $this->deployer->hostSelector;
+
+        if (!empty($hosts)) $selector = $selector->getByHostnames($hosts);
+        if (!empty($roles)) $selector = $selector->getByRoles($roles);
+        if (!empty($stage)) $selector = $selector->getByStage($stage);
+
+        $hosts = $selector->getHosts($cluster);
 
         if (empty($hosts)) {
             throw new Exception('No host selected');
@@ -143,7 +149,7 @@ class TaskCommand extends Command
         try {
             $executor->run($tasks, $hosts);
         } catch (\Throwable $exception) {
-            $this->deployer->logger->log('['. get_class($exception) .'] '. $exception->getMessage());
+            $this->deployer->logger->log('[' . get_class($exception) . '] ' . $exception->getMessage());
             $this->deployer->logger->log($exception->getTraceAsString());
 
             if ($exception instanceof GracefulShutdownException) {

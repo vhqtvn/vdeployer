@@ -238,6 +238,12 @@ class Host
         return $this;
     }
 
+    public function cluster(string $cluster): self
+    {
+        $this->config->set('cluster', $cluster);
+        return $this;
+    }
+
     public function stage(string $stage): self
     {
         $this->config->set('stage', $stage);

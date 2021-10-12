@@ -17,54 +17,49 @@ class HostSelector
     private $hosts;
 
     /**
-     * @var string
+     * @var ?string
+     */
+    private $defaultCluster;
+
+    /**
+     * @var ?string
      */
     private $defaultStage;
 
-    public function __construct(HostCollection $hosts, $defaultStage = null)
+    public function __construct(HostCollection $hosts, $cluster = null, $stage = null)
     {
         $this->hosts = $hosts;
-        $this->defaultStage = $defaultStage;
+        $this->defaultCluster = $cluster;
+        $this->defaultStage = $stage;
     }
 
     /**
-     * @param string $stage
+     * @param ?string $cluster
      * @return Host[]
      * @throws Exception
      */
-    public function getHosts($stage)
+    public function getHosts($cluster = null)
     {
         $hosts = [];
 
-        // Get a default stage if no stage given
-        if (empty($stage)) {
-            $stage = $this->defaultStage;
+        if (empty($cluster)) {
+            $cluster = $this->defaultCluster;
         }
 
-        if (!empty($stage)) {
-            // Look for hosts which has stage with current stage name
-            foreach ($this->hosts as $host) {
-                // If host does not have any stage, skip them
-                if ($stage === $host->get('stage', false)) {
-                    $hosts[$host->getHostname()] = $host;
-                }
+        foreach ($this->hosts as $host) {
+            $include = true;
+            if (empty($cluster)) $include = $include && (!$host->has('cluster') || $host->get('cluster') == '');
+            else $include = $include && ($host->has('cluster') && $host->get('cluster') == $cluster);
+            if ($include) {
+                $hosts[$host->getHostname()] = $host;
             }
+        }
 
-            // If still is empty, try to find host by name
-            if (empty($hosts)) {
-                if ($this->hosts->has($stage)) {
-                    $hosts = [$stage => $this->hosts->get($stage)];
-                } else {
-                    // Nothing found.
-                    throw new Exception("Hostname or stage `$stage` was not found.");
-                }
-            }
-        } else {
-            // Otherwise run on all hosts what does not specify stage
-            foreach ($this->hosts as $host) {
-                if (!$host->has('stage')) {
-                    $hosts[$host->getHostname()] = $host;
-                }
+        if (empty($hosts)) {
+            if ($this->hosts->has($cluster)) {
+                $hosts = [$cluster => $this->hosts->get($cluster)];
+            } else {
+                throw new Exception("Hostname or cluster `$cluster` was not found.");
             }
         }
 
@@ -72,11 +67,36 @@ class HostSelector
             if (count($this->hosts) === 0) {
                 $hosts = ['localhost' => new Localhost()];
             } else {
-                throw new Exception('You need to specify at least one host or stage.');
+                throw new Exception('You need to specify at least one host or cluster.');
             }
         }
 
         return $hosts;
+    }
+
+    /**
+     * @param ?string $stage
+     * @return Host[]
+     * @throws Exception
+     */
+    public function getByStage($stage = null)
+    {
+        $hosts = [];
+
+        if (empty($stage)) {
+            $stage = $this->defaultStage;
+        }
+
+        foreach ($this->hosts as $host) {
+            $include = true;
+            if (empty($stage)) $include = $include && (!$host->has('stage') || $host->get('stage') == '');
+            else $include = $include && ($host->has('stage') && $host->get('stage') == $stage);
+            if ($include) {
+                $hosts[$host->getHostname()] = $host;
+            }
+        }
+
+        return new self(new HostCollection($hosts), cluster: $this->defaultCluster, stage: $this->defaultStage);
     }
 
     /**
@@ -86,7 +106,8 @@ class HostSelector
     public function getByHostnames($hostnames)
     {
         $hostnames = Range::expand(array_map('trim', explode(',', $hostnames)));
-        return array_map([$this->hosts, 'get'], $hostnames);
+        $hosts = array_map([$this->hosts, 'get'], $hostnames);
+        return new self(new HostCollection($hosts), cluster: $this->defaultCluster, stage: $this->defaultStage);
     }
 
     /**
@@ -108,6 +129,6 @@ class HostSelector
             }
         }
 
-        return $hosts;
+        return new self(new HostCollection($hosts), cluster: $this->defaultCluster, stage: $this->defaultStage);
     }
 }

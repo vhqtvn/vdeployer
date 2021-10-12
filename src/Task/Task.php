@@ -39,7 +39,7 @@ class Task
      *
      * @var array
      */
-    private $on = ['hosts' => [], 'roles' => [], 'stages' => []];
+    private $on = ['hosts' => [], 'roles' => [], 'stages' => [], 'clusters' => []];
 
     /**
      * List of task names to run before.
@@ -203,6 +203,16 @@ class Task
     }
 
     /**
+     * @param array $stages
+     * @return $this
+     */
+    public function onCluster(...$cluster)
+    {
+        $this->on['clusters'] = array_flatten($cluster);
+        return $this;
+    }
+
+    /**
      * Checks what task should be performed on one of hosts.
      *
      * @param Host[] $hosts
@@ -232,7 +242,14 @@ class Task
                 }
             }
 
-            if ($onHost && $onRole && $onStage) {
+            $onCluster = empty($this->on['clusters']);
+            if ($host->has('cluster')) {
+                if (in_array($host->get('cluster'), $this->on['clusters'], true)) {
+                    $onCluster = true;
+                }
+            }
+
+            if ($onHost && $onRole && $onStage && $onCluster) {
                 return true;
             }
         }
