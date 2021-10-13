@@ -84,14 +84,11 @@ class BashCommand
     }
     private static function batchJoiner(string $join, BashCommand ...$commands)
     {
-        $new_commands = [
-            static::raw("( "),
-        ];
+        $new_commands = [];
         foreach ($commands as $c) {
-            if (count($new_commands) > 1) $new_commands[] = static::raw(" )$join( ");
+            if (!empty($new_commands)) $new_commands[] = static::raw(" $join ");
             $new_commands[] = $c;
         }
-        $new_commands[] = static::raw(" )");
         return static::raw(...$new_commands);
     }
     /**
@@ -196,6 +193,10 @@ class BashCommand
     public function ignoreError()
     {
         return static::first($this, static::true());
+    }
+    public function group()
+    {
+        return static::raw("( ", $this, " )");
     }
     private function escapeArg($arg)
     {
