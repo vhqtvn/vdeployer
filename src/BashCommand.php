@@ -36,6 +36,22 @@ class BashCommand
         static::__init_static();
         return new static(static::$special_command, 'raw', ...$raw_command);
     }
+    /**
+     *
+     * @param (string|BashCommand)[] $raw_command
+     * @return BashCommand
+     */
+    public static function rawArg(...$raw_command)
+    {
+        static::__init_static();
+        return new static(
+            static::$special_command,
+            'raw',
+            static::raw(' '),
+            ...$raw_command,
+            static::raw(' '),
+        );
+    }
     public static function arg($name, ...$args)
     {
         static::__init_static();
