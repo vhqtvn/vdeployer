@@ -88,7 +88,7 @@ class BashCommand
             static::raw("( "),
         ];
         foreach ($commands as $c) {
-            if (count($new_commands) === 1) $new_commands[] = static::raw(" )$join( ");
+            if (count($new_commands) > 1) $new_commands[] = static::raw(" )$join( ");
             $new_commands[] = $c;
         }
         $new_commands[] = static::raw(" )");
