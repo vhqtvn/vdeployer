@@ -38,18 +38,27 @@ class BashCommand
     }
     /**
      *
+     * @return BashCommand
+     */
+    public static function nil()
+    {
+        static::__init_static();
+        return new static(static::$special_command, 'nil');
+    }
+    /**
+     *
      * @param (string|BashCommand)[] $raw_command
      * @return BashCommand
      */
     public static function rawArg(...$raw_command)
     {
         static::__init_static();
+        $raw_command[] = static::raw(' ');
         return new static(
             static::$special_command,
             'raw',
             static::raw(' '),
-            ...$raw_command,
-            static::raw(' '),
+            ...$raw_command
         );
     }
     public static function arg($name, ...$args)
@@ -178,7 +187,11 @@ class BashCommand
     }
     public function isRawCommand()
     {
-        return $this->_args[0] === static::$special_command;
+        return $this->_args[0] === static::$special_command && $this->_args[1] == "raw";
+    }
+    public function isNilCommand()
+    {
+        return $this->_args[0] === static::$special_command && $this->_args[1] == "nil";
     }
     public function ignoreError()
     {
@@ -198,6 +211,8 @@ class BashCommand
             switch ($this->_args[1]) {
                 case 'raw':
                     return $this->_args[2];
+                case 'nil':
+                    return null;
                 default:
                     throw new Error("Should not occur: special command::__toString(): " . $this->_args[1]);
             }
@@ -210,6 +225,8 @@ class BashCommand
             switch ($this->_args[1]) {
                 case 'raw':
                     return implode("", array_slice($this->_args, 2));
+                case 'nil':
+                    return "";
                 default:
                     throw new Error("Should not occur: special command::__toString(): " . $this->_args[1]);
             }
@@ -217,8 +234,9 @@ class BashCommand
         $result = "";
         $last_is_raw = false;
         foreach ($this->_args as $arg) {
+            if ($arg instanceof self && $arg->isNilCommand()) continue;
             $part = $this->escapeArg($arg);
-            $current_is_raw = $arg instanceof static && $arg->isRawCommand();
+            $current_is_raw = $arg instanceof self && $arg->isRawCommand();
             if (!empty($result) && !$last_is_raw && !$current_is_raw) $result .= " ";
             $last_is_raw = $current_is_raw;
             $result .= $part;
