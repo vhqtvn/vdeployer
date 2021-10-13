@@ -11,8 +11,8 @@ class BashCommand
 
     private static function __init_static()
     {
-        if (!is_null(self::$special_command)) return;
-        self::$special_command = USymbol::create('');
+        if (!is_null(static::$special_command)) return;
+        static::$special_command = USymbol::create('');
     }
 
     /**
@@ -23,8 +23,8 @@ class BashCommand
      */
     public static function __callStatic($name, $arguments)
     {
-        self::__init_static();
-        return new self($name, ...$arguments);
+        static::__init_static();
+        return new static($name, ...$arguments);
     }
     /**
      *
@@ -33,13 +33,13 @@ class BashCommand
      */
     public static function raw(...$raw_command)
     {
-        self::__init_static();
-        return new self(self::$special_command, 'raw', ...$raw_command);
+        static::__init_static();
+        return new static(static::$special_command, 'raw', ...$raw_command);
     }
     public static function arg($name, ...$args)
     {
-        self::__init_static();
-        return new self($name, ...$args);
+        static::__init_static();
+        return new static($name, ...$args);
     }
     public static function setopt(
         $verbose = null,
@@ -54,20 +54,20 @@ class BashCommand
         if (!is_null($pipefail)) $opts[] = $pipefail ? "-o pipefail" : "+o pipefail";
         if (!is_null($verbose)) $opts[] = $verbose ? "-v" : "+v";
         if (!is_null($xtrace)) $opts[] = $xtrace ? "-x" : "+x";
-        if (empty($opts)) return self::raw("true");
-        return self::raw("set " . implode(" ", $opts));
+        if (empty($opts)) return static::raw("true");
+        return static::raw("set " . implode(" ", $opts));
     }
     private static function batchJoiner(string $join, BashCommand ...$commands)
     {
         $new_commands = [
-            self::raw("( "),
+            static::raw("( "),
         ];
         foreach ($commands as $c) {
-            if (!empty($new_commands)) $new_commands[] = self::raw(" )$join( ");
+            if (!empty($new_commands)) $new_commands[] = static::raw(" )$join( ");
             $new_commands[] = $c;
         }
-        $new_commands[] = self::raw(" )");
-        return self::raw(...$new_commands);
+        $new_commands[] = static::raw(" )");
+        return static::raw(...$new_commands);
     }
     /**
      *
@@ -76,16 +76,25 @@ class BashCommand
      */
     public static function batch(BashCommand ...$commands)
     {
-        return self::batchJoiner(";", ...$commands);
+        return static::batchJoiner(";", ...$commands);
     }
     /**
-     *
+     * Combine all the commands by &&
      * @param BashCommand[] $commands
      * @return BashCommand
      */
-    public static function and(BashCommand ...$commands)
+    public static function all(BashCommand ...$commands)
     {
-        return self::batchJoiner("&&", ...$commands);
+        return static::batchJoiner("&&", ...$commands);
+    }
+    /**
+     * Combine all the commands by ||
+     * @param BashCommand[] $commands
+     * @return BashCommand
+     */
+    public static function first(BashCommand ...$commands)
+    {
+        return static::batchJoiner("||", ...$commands);
     }
     /**
      *
@@ -94,7 +103,7 @@ class BashCommand
      */
     public static function pipe(BashCommand ...$commands)
     {
-        return self::batchJoiner("|", ...$commands);
+        return static::batchJoiner("|", ...$commands);
     }
 
     /**
@@ -106,9 +115,9 @@ class BashCommand
     public static function subShell(BashCommand $command, bool $quote = false)
     {
         if ($quote) {
-            return self::raw('"$( ', $command, ' )"');
+            return static::raw('"$( ', $command, ' )"');
         } else {
-            return self::raw('$( ', $command, ' )');
+            return static::raw('$( ', $command, ' )');
         }
     }
 
@@ -122,7 +131,7 @@ class BashCommand
             }
         }
         if ($is_normal_string) return escapeshellarg($arg);
-        return self::raw('"$(' . self::echo(self::raw(bin2hex($arg))) . ' | xxd -r -p)"');
+        return static::raw('"$(' . static::echo(static::raw(bin2hex($arg))) . ' | xxd -r -p)"');
     }
 
 
@@ -153,12 +162,16 @@ class BashCommand
     }
     public function isRawCommand()
     {
-        return $this->_args[0] === self::$special_command;
+        return $this->_args[0] === static::$special_command;
+    }
+    public function ignoreError()
+    {
+        return static::first($this, static::true());
     }
     private function escapeArg($arg)
     {
-        if (is_string($arg)) return self::escapeStringArg($arg);
-        if ($arg instanceof self) return (string)$arg;
+        if (is_string($arg)) return static::escapeStringArg($arg);
+        if ($arg instanceof static) return (string)$arg;
         if (is_integer($arg)) return "$arg";
         if (is_bool($arg)) return $arg ? "1" : "0";
         throw new Error("Unexpected argument: " . var_export($arg, true));
@@ -173,7 +186,7 @@ class BashCommand
                     throw new Error("Should not occur: special command::__toString(): " . $this->_args[1]);
             }
         }
-        return self::escapeStringArg($this->__toString());
+        return static::escapeStringArg($this->__toString());
     }
     public function __toString(): string
     {
@@ -189,8 +202,9 @@ class BashCommand
         $last_is_raw = false;
         foreach ($this->_args as $arg) {
             $part = $this->escapeArg($arg);
-            $current_is_raw = $arg instanceof self && $arg->isRawCommand();
+            $current_is_raw = $arg instanceof static && $arg->isRawCommand();
             if (!empty($result) && !$last_is_raw && !$current_is_raw) $result .= " ";
+            $last_is_raw = $current_is_raw;
             $result .= $part;
         }
         if (!empty($this->_streams)) $result .= " " . implode(" ", $this->_streams);
