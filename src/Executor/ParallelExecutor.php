@@ -283,7 +283,7 @@ class ParallelExecutor implements ExecutorInterface
         if ($this->input->hasArgument('cluster')) {
             $arguments .= escapeshellarg($this->input->getArgument('cluster'));
 
-            if ($this->input->hasArgument('stage')) {
+            if ($this->input->hasArgument('stage') && !is_null($this->input->getArgument('stage'))) {
                 $arguments .= " " . escapeshellarg($this->input->getArgument('stage'));
             }
         }
