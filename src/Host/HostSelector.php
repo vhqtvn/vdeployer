@@ -33,6 +33,17 @@ class HostSelector
         $this->defaultStage = $stage;
     }
 
+    public function get()
+    {
+        $hosts = [];
+
+        foreach ($this->hosts as $host) {
+            $hosts[$host->getHostname()] = $host;
+        }
+
+        return $hosts;
+    }
+
     /**
      * @param ?string $cluster
      * @return Host[]

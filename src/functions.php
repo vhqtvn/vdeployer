@@ -401,7 +401,7 @@ function on($hosts, callable $callback)
  */
 function roles(...$roles)
 {
-    return Deployer::get()->hostSelector->getByRoles($roles);
+    return Deployer::get()->hostSelector->getByRoles($roles)->get();
 }
 
 /**
