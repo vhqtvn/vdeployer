@@ -94,14 +94,15 @@ class SshCommand extends Command
                     [$username, $hostname] = explode('@', $hostname, 2);
                 }
 
-                $result_host = null;
+                $result_host = [];
                 foreach ($this->deployer->hosts as $host => $chk_host) {
                     if (!is_null($username) && $username != $chk_host->getUser()) continue;
-                    if ($hostname != $chk_host->getRealHostname()) continue;
-                    $result_host = $chk_host;
+                    if ($hostname != $chk_host->getRealHostname() && $hostname != $chk_host->getHostname()) continue;
+                    $result_host[] = $chk_host;
                     break;
                 }
-                if (is_null($result_host)) throw new \Exception("No such host: $hostname_input");
+                if (empty($result_host)) throw new \Exception("No such host: $hostname_input");
+                $result_host = $result_host[0];
                 $host = $result_host;
             }
         }
