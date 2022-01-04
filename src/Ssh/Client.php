@@ -66,6 +66,7 @@ class Client
             $this->output->write(''); // Notify OutputWatcher
             $sshArguments = $sshArguments->withFlag('-tt');
             $command = escapeshellarg($command);
+            echo("Run command for host [[$hostname]]\n");
 
             $ssh = "ssh $sshArguments $host $command";
             $process = $this->createProcess($ssh);
