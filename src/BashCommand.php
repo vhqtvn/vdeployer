@@ -174,6 +174,50 @@ class BashCommand
         $this->_streams[] = "2>&1";
         return $this;
     }
+    public static function escapeFileInPipe($fn)
+    {
+        return escapeshellarg($fn);
+    }
+    /**
+     * @return $this
+     */
+    public function outputToFile($file)
+    {
+        $this->_streams[] = ">" . self::escapeFileInPipe($file);
+        return $this;
+    }
+    /**
+     * @return $this
+     */
+    public function outputAppendToFile($file)
+    {
+        $this->_streams[] = ">>" . self::escapeFileInPipe($file);
+        return $this;
+    }
+    /**
+     * @return $this
+     */
+    public function errorToFile($file)
+    {
+        $this->_streams[] = "2>" . self::escapeFileInPipe($file);
+        return $this;
+    }
+    /**
+     * @return $this
+     */
+    public function errorAppendToFile($file)
+    {
+        $this->_streams[] = "2>>" . self::escapeFileInPipe($file);
+        return $this;
+    }
+    /**
+     * @return $this
+     */
+    public function inputFromFile($file)
+    {
+        $this->_streams[] = "<" . self::escapeFileInPipe($file);
+        return $this;
+    }
     /**
      * @return $this
      */
