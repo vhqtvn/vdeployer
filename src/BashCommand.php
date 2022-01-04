@@ -153,7 +153,7 @@ class BashCommand
             }
         }
         if ($is_normal_string) return escapeshellarg($arg);
-        return static::raw('"$(' . static::echo(static::raw(bin2hex($arg))) . ' | xxd -r -p)"');
+        return static::raw('"$(' . static::echo(static::raw(' ', bin2hex($arg))) . ' | xxd -r -p)"');
     }
 
 
