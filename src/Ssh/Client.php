@@ -94,6 +94,7 @@ class Client
             ->setInput($command)
             ->setTimeout($config['timeout']);
 
+        echo("Run command for host [[$hostname]]\n");
         $process->run($this->pop->callback($hostname));
 
         $output = $this->pop->filterOutput($process->getOutput());
