@@ -59,7 +59,7 @@ class Host
         }
 
         if ($connection_proxy = $this->connectionProxy()) {
-            $proxy_host = $this->deployer->hosts->get($connection_proxy);
+            $proxy_host = Deployer::get()->hosts->get($connection_proxy);
             if (!$proxy_host) {
                 throw new \Exception("Cannot find host $connection_proxy for proxying");
             }
