@@ -282,6 +282,7 @@ class Host
     public function withConnectionProxy(string $proxy)
     {
         $this->config->set('connection-proxy', $proxy);
+        return $this;
     }
 
     public function connectionProxy()
