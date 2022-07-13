@@ -57,6 +57,18 @@ class Host
         if ($this->forwardAgent) {
             $this->sshArguments = $this->sshArguments->withFlag('-A');
         }
+
+        if ($connection_proxy = $this->connectionProxy()) {
+            $proxy_host = $this->deployer->hosts->get($connection_proxy);
+            if (!$proxy_host) {
+                throw new \Exception("Cannot find host $connection_proxy for proxying");
+            }
+            //TODO: unsafe arguments injection
+            $this->sshArguments = $this->sshArguments->withFlag(
+                '-o',
+                'ProxyCommand="ssh -W %h:%p ' . $proxy_host->getSshArguments() . ' ' . escapeshellarg($proxy_host->getUser() . '@' . $proxy_host->getRealHostname()) . '"'
+            );
+        }
     }
 
     /**
@@ -265,5 +277,15 @@ class Host
     {
         $this->config->set('become', $user);
         return $this;
+    }
+
+    public function withConnectionProxy(string $proxy)
+    {
+        $this->config->set('connection-proxy', $proxy);
+    }
+
+    public function connectionProxy()
+    {
+        return $this->config->get('connection-proxy', '');
     }
 }

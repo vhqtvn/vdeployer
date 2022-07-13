@@ -60,13 +60,13 @@ class Client
 
         $become = $host->has('become') ? 'sudo -H -u ' . $host->get('become') : '';
 
+        echo("Run command for host [[$hostname]]\n");
         // When tty need to be allocated, don't use multiplexing,
         // and pass command without bash allocation on remote host.
         if ($config['tty']) {
             $this->output->write(''); // Notify OutputWatcher
             $sshArguments = $sshArguments->withFlag('-tt');
             $command = escapeshellarg($command);
-            echo("Run command for host [[$hostname]]\n");
 
             $ssh = "ssh $sshArguments $host $command";
             $process = $this->createProcess($ssh);
@@ -95,7 +95,6 @@ class Client
             ->setInput($command)
             ->setTimeout($config['timeout']);
 
-        echo("Run command for host [[$hostname]]\n");
         $process->run($this->pop->callback($hostname));
 
         $output = $this->pop->filterOutput($process->getOutput());
