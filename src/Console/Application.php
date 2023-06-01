@@ -7,8 +7,6 @@
 
 namespace Deployer\Console;
 
-use Deployer\Component\PharUpdate\Console\Command as PharUpdateCommand;
-use Deployer\Component\PharUpdate\Console\Helper as PharUpdateHelper;
 use Deployer\Deployer;
 use Symfony\Component\Console\Application as Console;
 use Symfony\Component\Console\Command\Command;
@@ -57,22 +55,7 @@ class Application extends Console
     {
         $commands = parent::getDefaultCommands();
 
-        if ($this->isPharArchive()) {
-            $commands[] = $this->selfUpdateCommand();
-        }
-
         return $commands;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    private function selfUpdateCommand()
-    {
-        $selfUpdate = new PharUpdateCommand('self-update');
-        $selfUpdate->setDescription('Updates deployer.phar to the latest version');
-        $selfUpdate->setManifestUri('https://deployer.org/manifest.json');
-        return $selfUpdate;
     }
 
     /**
@@ -82,9 +65,6 @@ class Application extends Console
     {
         $helperSet = parent::getDefaultHelperSet();
 
-        if ($this->isPharArchive()) {
-            $helperSet->set(new PharUpdateHelper());
-        }
         return $helperSet;
     }
 
