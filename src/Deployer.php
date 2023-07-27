@@ -20,6 +20,7 @@ use Deployer\Console\RunCommand;
 use Deployer\Console\SshCommand;
 use Deployer\Console\TaskCommand;
 use Deployer\Console\WorkerCommand;
+use Deployer\Console\WorkerSerializedCommand;
 use Deployer\Executor\ParallelExecutor;
 use Deployer\Executor\SeriesExecutor;
 use Deployer\Logger\Handler\FileHandler;
@@ -228,6 +229,7 @@ class Deployer extends Container
     {
         $this->addConsoleCommands();
         $this->getConsole()->add(new WorkerCommand($this));
+        $this->getConsole()->add(new WorkerSerializedCommand($this));
         $this->getConsole()->add($this['init_command']);
         $this->getConsole()->add(new SshCommand($this));
         $this->getConsole()->add(new HostsCommand($this));

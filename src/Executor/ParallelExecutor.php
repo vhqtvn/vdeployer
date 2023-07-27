@@ -21,6 +21,7 @@ use Deployer\Host\Localhost;
 use Deployer\Host\Storage;
 use Deployer\Task\Context;
 use Deployer\Task\Task;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
@@ -159,7 +160,8 @@ class ParallelExecutor implements ExecutorInterface
     {
         $dep = PHP_BINARY . ' ' . DEPLOYER_BIN;
         $options = $this->generateOptions();
-        $arguments = $this->generateArguments();
+        $defintions = bin2hex(json_encode($this->generateArgumentsDefinitions()));
+        $arguments = bin2hex(json_encode($this->input->getArguments()));
         $hostname = $host->getHostname();
         $taskName = $task->getName();
         $configFile = $host->get('host_config_storage');
@@ -170,7 +172,7 @@ class ParallelExecutor implements ExecutorInterface
             $options .= ' --ansi';
         }
 
-        $command = "$dep $file worker $arguments $options --hostname $hostname --task $taskName --config-file $configFile";
+        $command = "$dep $file worker-serialized $defintions $arguments $options --hostname $hostname --task $taskName --config-file $configFile";
         if (method_exists('Symfony\Component\Process\Process', 'fromShellCommandline')) {
             $process = Process::fromShellCommandline($command);
         } else {
@@ -276,18 +278,24 @@ class ParallelExecutor implements ExecutorInterface
         }));
     }
 
-    private function generateArguments(): string
-    {
-        $arguments = '';
+    private function getDefinition() {
+        $reflection = new \ReflectionObject($this->input);
+        $property = $reflection->getProperty('definition');
+        $property->setAccessible(true);
+        return $property->getValue($this->input);
+    }
 
-        if ($this->input->hasArgument('cluster')) {
-            $arguments .= escapeshellarg($this->input->getArgument('cluster'));
-
-            if ($this->input->hasArgument('stage') && !is_null($this->input->getArgument('stage'))) {
-                $arguments .= " " . escapeshellarg($this->input->getArgument('stage'));
-            }
+    private function generateArgumentsDefinitions() {
+        $r = [];
+        foreach($this->getDefinition()->getArguments() as $arg) {
+            $r[$arg->getName()] = [
+                $arg->getName(),
+                ($arg->isRequired() ? InputArgument::REQUIRED : InputArgument::OPTIONAL)
+                | ($arg->isArray() ? InputArgument::IS_ARRAY : 0),
+                $arg->getDescription(),
+                $arg->getDefault(),
+            ];
         }
-
-        return $arguments;
+        return $r;
     }
 }
